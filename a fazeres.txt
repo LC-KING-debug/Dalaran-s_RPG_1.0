@@ -1,0 +1,12 @@
+-adicionar efeitos de fade in e fade out com @keyframes.
+-responsividade focada em dispositivos mobile.
+-efeitos de neon verde para as letras do terminal do jogo, branco neon para os ids: inicio,guide,redes_sociais.
+-background animado com vídeo.
+-texto de bem vindo no fade in apenas na página do index.html onde ta o jogo, e falar |"Bem vindo a Dalaran's quando for a primeira entrada do jogador,
+e "Bem vindo de volta a Dalaran's" nas próximas vezes que logar.
+-efeito na letra hacker(glitch)
+-musica ambiente.
+-pedir o nome do personagem do usuário e salvar.
+-cada usuário vai poder criar 3 personagens por conta, com as classes, arqueiro,cavaleiro, e mago.
+-sobre a página de cadastro e login, vai ser username, e senha, quando for ativado o fade in com a mensagem "Bem vindo a Dalaran's" ou "Bem vindo de volta a Dalaran's" tem que pegar o nome do usuário que esta
+guardado no username.

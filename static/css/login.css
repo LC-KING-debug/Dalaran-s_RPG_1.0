@@ -1,0 +1,304 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+
+/* ==========================================
+   RESET & CONFIGURAÇÕES GERAIS
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Fira Code', monospace;
+}
+
+body {
+    background-color: #000000;
+    color: #00ff00;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    padding: 90px 20px 20px 20px; /* Margem superior para o header não cobrir o painel */
+    opacity: 0;
+    animation: fadeIn 4s ease-in-out forwards;
+    
+}
+
+
+
+
+
+/* ==========================================
+   HEADER LIMPO (APENAS ALINHAMENTO)
+   ========================================== */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 0; /* Espaçamento interno reduzido */
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 1000;
+}
+
+/* Tamanho controlado da Logo para não quebrar o layout */
+.logo {
+    width: 100%;
+    max-width: 318px; /* Tamanho perfeito para não esmagar os outros itens não mecher*/
+    height: auto;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none;
+}
+.logo {
+    animation: logoGlitch 4s infinite;
+}
+
+@keyframes logoGlitch {
+
+    0%, 96%, 100% {
+        transform: translate(0);
+        filter: none;
+    }
+
+    97% {
+        transform: translate(-2px, 1px);
+        filter: drop-shadow(2px 0 #00ff00);
+    }
+
+    98% {
+        transform: translate(10px, -1px);
+        filter: drop-shadow(-2px 0 #00ff00);
+    }
+
+    99% {
+        transform: translate(-5px, 10px);
+        filter: drop-shadow(2px 0 #00ff00);
+    }
+}
+
+/* ==========================================
+   PAINEL DE AUTENTICAÇÃO (AUTH CONTAINER)
+   ========================================== */
+.auth-container {
+    border: 2px solid #00ff00;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 25px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    z-index: 10;
+}
+
+.terminal-header {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #00ff00;
+    text-shadow: 0 0 8px #00ff00;
+}
+
+/* Efeito Glitch simples nas letras */
+.glitch {
+    position: relative;
+}
+
+.glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+}
+
+.glitch::before {
+    left: 2px;
+    text-shadow: -1px 0 #ff00c8;
+    animation: glitch-1 2s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+    left: -2px;
+    text-shadow: -1px 0 #00e5ff;
+    animation: glitch-2 2s infinite linear alternate-reverse;
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 25px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: #005500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.tab-btn.active, .tab-btn:hover {
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-group input {
+    background: #000;
+    border: 1px solid #00ff00;
+    padding: 12px;
+    color: #00ff00;
+    font-family: 'Fira Code', monospace;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.input-group input:focus {
+    outline: none;
+    box-shadow: 0 0 8px #00ff00;
+}
+
+.submit-btn {
+    background: #00ff00;
+    color: #000;
+    border: 1px solid #00ff00;
+    padding: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.submit-btn:hover {
+    background: #000;
+    color: #00ff00;
+    box-shadow: 0 0 8px #00ff00;
+}
+
+.system-msg {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.85rem;
+    min-height: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ==========================================
+   BACKGROUNDS (VÍDEO E LINHAS CRT)
+   ========================================== */
+.video-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    overflow: hidden;
+}
+
+.video-background video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.3;
+}
+
+.scanline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%);
+    z-index: -1;
+    background-size: 100% 4px;
+    pointer-events: none;
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+footer {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    color: #00ff00;
+    font-size: 0.8rem;
+}
+
+/* ==========================================
+   ANIMAÇÕES DE ENTRADA DO SITE
+   ========================================== */
+@keyframes fadeIn {
+    from { opacity: 0; filter: brightness(0); }
+    to { opacity: 1; filter: brightness(1); }
+}
+
+@keyframes glitch-1 {
+    0% { clip: rect(20px, 400px, 10px, 0); }
+    100% { clip: rect(40px, 400px, 30px, 0); }
+}
+
+@keyframes glitch-2 {
+    0% { clip: rect(10px, 400px, 30px, 0); }
+    100% { clip: rect(30px, 400px, 5px, 0); }
+}
+
+/* ==========================================
+   RESPONSIVIDADE MOBILE
+   ========================================== */
+@media (max-width: 480px) {
+    body {
+        padding-top: 80px; /* Protege o layout no mobile para o header não pisar no container */
+    }
+    .logo {
+        max-width: 180px; /* Diminui a logo no celular para liberar espaço vertical */
+    }
+    .auth-container {
+        width: 90%;
+        padding: 20px;
+    }
+}
+
+@media (max-height: 580px) {
+    /* Ajuste para celulares deitados ou com telas muito baixas */
+    .logo {
+        max-width: 140px;
+    }
+    body {
+        padding-top: 65px;
+    }
+}
+
+/*sublinhar os aturores lc e vitor*/
+.author {
+    text-decoration: underline;
+}

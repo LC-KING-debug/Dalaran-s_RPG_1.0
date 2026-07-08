@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dalaran's RPG - Login</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+    <link rel="icon" type="image/png" href="/assets/icon/favico.png">
+    
+</head>
+
+<!-- Elemento de áudio global para efeito de clique -->
+<audio id="global-click-sound" preload="auto">
+    <source src="/assets/sounds/click.mp3" type="audio/mpeg">
+</audio>
+
+
+
+<body>
+    <header>
+        <img src="/assets/imgs/header.png" alt="Dalaran's RPG" class="logo">
+    </header>
+
+
+
+
+
+
+
+    <div class="scanline"></div>
+
+    <div class="auth-container">
+        <div class="terminal-header glitch" data-text=">_ ACESSO_REQUERIDO">>_ ACESSO_REQUERIDO</div>
+
+        <div class="tabs">
+            <button id="tab-login" class="tab-btn active" onclick="switchTab('login')">[ LOGIN ]</button>
+            <button id="tab-register" class="tab-btn" onclick="switchTab('register')">[ NOVO_CADASTRO ]</button>
+        </div>
+
+        <form id="login-form" class="auth-form" onsubmit="handleAuth(event, 'login')">
+            <div class="input-group">
+                <label for="login-user">USERNAME:</label>
+                <input type="text" id="login-user" required autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label for="login-pass">SENHA:</label>
+                <input type="password" id="login-pass" required>
+            </div>
+            <button type="submit" class="submit-btn">CONECTAR_SISTEMA()</button>
+        </form>
+
+        <form id="register-form" class="auth-form hidden" onsubmit="handleAuth(event, 'register')">
+            <div class="input-group">
+                <label for="reg-user">NOVO USERNAME:</label>
+                <input type="text" id="reg-user" required autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label for="reg-pass">CRIAR SENHA:</label>
+                <input type="password" id="reg-pass" required>
+            </div>
+            <button type="submit" class="submit-btn">REGISTRAR_CONTA()</button>
+        </form>
+
+        <div id="auth-message" class="system-msg"></div>
+    </div>
+
+
+
+
+    <footer class="footer">
+        <p>&copy; 2026 Dalaran's RPG. Todos os direitos reservados.</p>
+        <p>Created by <span class="author">Vitor Cruz</span> and <span class="author">Lucius Kether</span></p>
+    </footer>
+
+
+
+    <script src="/static/js/login.js"></script>
+</body>
+
+</html>
