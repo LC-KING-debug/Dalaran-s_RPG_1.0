@@ -20,7 +20,7 @@ body {
     align-items: center;
     overflow: hidden;
     position: relative;
-    padding: 90px 20px 20px 20px; /* Margem superior para o header não cobrir o painel */
+    padding: 180px 20px 20px 20px; /* Margem superior para o header não cobrir o painel */
     opacity: 0;
     animation: fadeIn 4s ease-in-out forwards;
     
