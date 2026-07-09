@@ -1,4 +1,5 @@
 ```text
+OBS: Projeto ainda em desenvolvimento
 Esrutura da aplicação:
 
 Dalarans-RPG/
