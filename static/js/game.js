@@ -72,7 +72,7 @@ function runGameLoadSequence() {
         audioAmbient.play().catch(() => {});
     }
     
-    let msg = `_CARREGANDO PROGRESSO DE ${activeChar.toUpperCase()}`;
+    let msg = `_CARREGANDO MUNDO DE:${activeChar.toUpperCase()}`;
     if(welcomeText) {
         welcomeText.innerText = msg;
         welcomeText.setAttribute('data-text', msg);

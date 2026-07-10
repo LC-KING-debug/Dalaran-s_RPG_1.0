@@ -64,7 +64,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function runWelcomeSequence() {
     const welcomeText = document.getElementById('welcome-text');
-    let msg = `_PERSONAGENS_`;
+    let msg = `_AVATARES_`;
     if(welcomeText) {
         welcomeText.innerText = msg;
         welcomeText.setAttribute('data-text', msg);
