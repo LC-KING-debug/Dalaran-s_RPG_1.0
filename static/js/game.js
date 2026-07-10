@@ -1,6 +1,3 @@
-
-
-let currentUsername = localStorage.getItem('currentUser') || "OPERADOR";
 const clickSound = document.getElementById('click-sound');
 
 function playClick() {
@@ -10,12 +7,49 @@ function playClick() {
         clickSound.play().catch(() => {});
     }
 }
-document.addEventListener('click', playClick);
+
+// Fade-Out controlável com delay estendido para 2.5 segundos (2500ms)
+function triggerPageFadeOut(url) {
+    const overlay = document.getElementById('page-transition');
+    if (overlay) {
+        overlay.classList.remove('fade-in');
+        overlay.classList.add('fade-out');
+        setTimeout(() => {
+            window.location.href = url;
+        }, 2500); // Sincronizado com o CSS
+    } else {
+        window.location.href = url;
+    }
+}
+
+document.addEventListener('click', (event) => {
+    const target = event.target;
+    
+    if (target.classList.contains('transition-trigger') || target.closest('.transition-trigger')) {
+        event.preventDefault();
+        const url = target.getAttribute('href') || target.closest('.transition-trigger').getAttribute('href');
+        triggerPageFadeOut(url);
+        return;
+    }
+
+    if (
+        target.tagName === 'BUTTON' || 
+        target.tagName === 'INPUT' || 
+        target.tagName === 'SELECT' || 
+        target.tagName === 'A'
+    ) {
+        playClick();
+    }
+});
 
 window.addEventListener('DOMContentLoaded', () => {
-    runWelcomeSequence();
+    const overlay = document.getElementById('page-transition');
+    if (overlay) {
+        overlay.classList.add('fade-in');
+    }
+
+    runGameLoadSequence();
     
-    // Configura o Listener do Input do Console
     const terminalInput = document.getElementById('terminal-input');
     if(terminalInput) {
         terminalInput.addEventListener('keydown', function(e) {
@@ -27,16 +61,18 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function runWelcomeSequence() {
+function runGameLoadSequence() {
     const welcomeText = document.getElementById('welcome-text');
     const audioAmbient = document.getElementById('ambient-bgs');
+    
+    let activeChar = localStorage.getItem('activeCharName') || "AVATAR";
     
     if (audioAmbient) {
         audioAmbient.volume = 0.3;
         audioAmbient.play().catch(() => {});
     }
     
-    let msg = `Bem vindo de volta, ${currentUsername}`;
+    let msg = `_CARREGANDO PROGRESSO DE ${activeChar.toUpperCase()}`;
     if(welcomeText) {
         welcomeText.innerText = msg;
         welcomeText.setAttribute('data-text', msg);
@@ -44,131 +80,32 @@ function runWelcomeSequence() {
 
     setTimeout(() => {
         const welcomeScreen = document.getElementById('welcome-screen');
-        if (welcomeScreen) welcomeScreen.style.display = 'none';
-        
-        const characterPanel = document.getElementById('character-panel');
-        if (characterPanel) characterPanel.classList.remove('hidden');
-        
-        loadCharacterPanel();
-    }, 3000);
-}
-
-async function loadCharacterPanel() {
-    try {
-        const response = await fetch('/listar_personagens');
-        const data = await response.json();
-        
-        const listDiv = document.getElementById('character-list');
-        const createBox = document.getElementById('create-char-box');
-        listDiv.innerHTML = '';
-        
-        if (data.status === 'sucesso') {
-            const lista = data.personagens;
-            
-            if (lista.length >= 3) {
-                createBox.classList.add('hidden');
-            } else {
-                createBox.classList.remove('hidden');
-            }
-            
-            if (lista.length === 0) {
-                const aviso = document.createElement('p');
-                aviso.style.color = '#ff0000';
-                aviso.style.fontSize = '0.85rem';
-                aviso.textContent = '[AVISO] Nenhum avatar localizado. Registre um novo sinalizador abaixo.';
-                listDiv.appendChild(aviso);
-                return;
-            }
-            
-            lista.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'char-card';
-                card.onclick = () => selecionarAvatar(p.nome);
-                
-                card.innerHTML = `
-                    <div>
-                        <strong></strong> <span style="font-size:0.75rem;"></span>
-                    </div>
-                    <div class="hp-display" style="font-size:0.8rem; color:#00aa00;"></div>
-                `;
-                
-                // Inserção segura de dados textuais para evitar quebras e XSS
-                card.querySelector('strong').textContent = p.nome;
-                card.querySelector('span').textContent = `(Nível ${p.nivel} ${p.classe})`;
-                card.querySelector('.hp-display').textContent = `HP: ${p.hp}/${p.hp_max}`;
-                
-                listDiv.appendChild(card);
-            });
+        if (welcomeScreen) {
+            welcomeScreen.style.display = 'none';
         }
-    } catch (e) {
-        console.error("Erro ao carregar avatares", e);
-    }
-}
-
-async function submitNewCharacter() {
-    const nome = document.getElementById('new-char-name').value.trim();
-    const classe = document.getElementById('new-char-class').value;
-    
-    if(!nome) {
-        alert("Insira um nome operacional válido.");
-        return;
-    }
-    
-    try {
-        const response = await fetch('/criar_personagem', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ nome, classe })
-        });
-        const data = await response.json();
         
-        if(response.ok) {
-            document.getElementById('active-char-display').textContent = `AVATAR: ${nome.toUpperCase()}`;
-            inicializarConsoleJogo(data.status_inicial);
-        } else {
-            alert(data.erro || "Falha ao registrar.");
+        const mainLayout = document.getElementById('main-game-layout');
+        if (mainLayout) {
+            mainLayout.classList.remove('hidden');
         }
-    } catch(e) {
-        alert("Erro de conexão com o núcleo.");
-    }
-}
-
-async function selecionarAvatar(nome) {
-    try {
-        const response = await fetch('/selecionar_personagem', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ nome })
-        });
-        const data = await response.json();
         
-        if (response.ok) {
-            document.getElementById('active-char-display').textContent = `AVATAR: ${nome.toUpperCase()}`;
-            inicializarConsoleJogo(data.status_inicial);
-        } else {
-            alert(data.erro);
+        const charDisplay = document.getElementById('active-char-display');
+        if (charDisplay) {
+            charDisplay.textContent = `AVATAR: ${activeChar.toUpperCase()}`;
         }
-    } catch(e) {
-        alert("Falha ao sincronizar avatar.");
-    }
-}
-
-function inicializarConsoleJogo(statusInicial) {
-    document.getElementById('character-panel').classList.add('hidden');
-    document.getElementById('main-game-layout').classList.remove('hidden');
-    
-    const log = document.getElementById('terminal-log');
-    const p = document.createElement('p');
-    p.style.color = '#ffff00';
-    p.textContent = statusInicial;
-    log.appendChild(p);
-    log.scrollTop = log.scrollHeight;
+        
+        const terminalInput = document.getElementById('terminal-input');
+        if(terminalInput) {
+            terminalInput.focus();
+        }
+    }, 3000); 
 }
 
 async function enviarComando(cmd) {
     if(!cmd.trim()) return;
     
     const log = document.getElementById('terminal-log');
+    if (!log) return;
     
     const cmdLine = document.createElement('p');
     cmdLine.innerHTML = `<span style="color: #00aa00">cmd:~$</span> `;

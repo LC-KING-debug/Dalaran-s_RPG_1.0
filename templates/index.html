@@ -8,6 +8,9 @@
     <link rel="icon" type="image/png" href="/static/assets/icon/favico.png">
 </head>
 <body>
+    <!-- Cortina de Transição Inicial Absoluta (Cobre tudo) -->
+    <div id="page-transition" class="page-transition-overlay"></div>
+
     <div class="scanline"></div>
 
     <audio id="ambient-bgs">
@@ -17,48 +20,23 @@
         <source src="/static/assets/sounds/click.mp3" type="audio/mpeg">
     </audio>
 
-    <!--1.tela de bem vindo-->
+    <!-- Transição do Game: Carregando progresso -->
     <div id="welcome-screen" class="welcome-overlay">
         <h1 id="welcome-text" class="glitch" data-text=""></h1>
     </div>
 
-    <!--2.Painel da seleção de personagem-->
-    <div id="character-panel" class="character-container hidden">
-        <h2 id="inicio">>_ SELECIONE_OU_CRIE_SEU_AVATAR</h2>
-        
-        <div id="character-list" class="char-grid">
-            <!-- Gerado via JavaScript -->
-        </div>
-
-        
-        <div id="create-char-box" class="create-box">
-            <h3>[ REGISTRAR NOVO AVATAR ]</h3>
-            <div class="input-group">
-                <label for="new-char-name">NOME DO PERSONAGEM:</label>
-                <input type="text" id="new-char-name" autocomplete="off" maxlength="16">
-            </div>
-            <div class="input-group">
-                <label for="new-char-class">CLASSE:</label>
-                <select id="new-char-class">
-                    <option value="Monge">Monge</option>
-                    <option value="Mago">Mago</option>
-                    <option value="Assassino">Assassino</option>
-                </select>
-            </div>
-            <button onclick="submitNewCharacter()" class="action-btn">SALVAR_CHARACTER()</button>
-        </div>
-    </div>
-
-   
-    <!-- 3. Interface do terminal do jogo -->
+    <!-- Layout principal do console (oculto até acabar animação) -->
     <div id="main-game-layout" class="console-wrapper hidden">
         <main class="terminal-box">
             <div class="terminal-bar">
-                <span id="active-char-display">AVATAR: INDEFINIDO</span>
-                <a href="/logout" class="disconnect-link" aria-label="Encerrar Sessão">[ TERMINATE_SESS ]</a>
+                <span id="active-char-display">AVATAR: ATIVO</span>
+                <div style="display: flex; gap: 15px;">
+                    <a href="/tela_personagens" class="disconnect-link transition-trigger" style="color:#00ff00;">[ GERENCIAR_AVATARES ]</a>
+                    <a href="/logout" class="disconnect-link transition-trigger">[ VOLTAR_AO_LOGIN ]</a>
+                </div>
             </div>
             <div id="terminal-log" class="terminal-log" aria-live="polite" aria-atomic="false">
-                <p class="sys-output">[SISTEMA] Console de controle operacional estabelecido.</p>
+                <p class="sys-output">[SISTEMA] Console de controle operational estabelecido.</p>
             </div>
             <div class="input-line">
                 <span class="user-prompt">cmd:~$</span>
