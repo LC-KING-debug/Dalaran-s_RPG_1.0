@@ -1,102 +1,88 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dalaran's RPG - Terminal</title>
     <link rel="stylesheet" href="/static/css/game.css">
-    <link rel="icon" type="image/png" href="/assets/icon/favico.png">
-    
+    <link rel="icon" type="image/png" href="/static/assets/icon/favico.png">
 </head>
-
 <body>
-    <div class="video-background">
-        <video autoplay loop muted playsinline>
-            <source src="/static/video/bg_hacker.mp4" type="video/mp4">
-        </video>
-    </div>
     <div class="scanline"></div>
 
-<!-- Música de entrada (Toca apenas uma vez, sem looping) -->
-<audio id="ambient-bgs">
-    <source src="/assets/sounds/iniciogame.mp3" type="audio/mpeg">
-</audio>
+    <audio id="ambient-bgs">
+        <source src="/static/assets/sounds/iniciogame.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="click-sound">
+        <source src="/static/assets/sounds/click.mp3" type="audio/mpeg">
+    </audio>
 
-<!-- Efeito sonoro de clique universal -->
-<audio id="click-sound">
-    <source src="/assets/sounds/click.mp3" type="audio/mpeg">
-</audio>
-
-    <!-- 1. EFEITO DE FADE IN / FADE OUT INICIAL -->
+    <!--1.tela de bem vindo-->
     <div id="welcome-screen" class="welcome-overlay">
         <h1 id="welcome-text" class="glitch" data-text=""></h1>
     </div>
 
-    <!-- 2. PAINEL DE CHARACTERS (SÓ APARECE PÓS WELCOME) -->
+    <!--2.Painel da seleção de personagem-->
     <div id="character-panel" class="character-container hidden">
         <h2 id="inicio">>_ SELECIONE_OU_CRIE_SEU_AVATAR</h2>
-
-        <!-- Lista de Personagens Atuais do Usuário -->
+        
         <div id="character-list" class="char-grid">
-            <!-- Injetado por JS (Max 3) -->
+            <!-- Gerado via JavaScript -->
         </div>
 
-        <!-- Formulário para Criar Novo Personagem se < 3 -->
-        <div id="create-char-box" class="create-box hidden">
+        
+        <div id="create-char-box" class="create-box">
             <h3>[ REGISTRAR NOVO AVATAR ]</h3>
             <div class="input-group">
-                <label>NOME DO PERSONAGEM:</label>
+                <label for="new-char-name">NOME DO PERSONAGEM:</label>
                 <input type="text" id="new-char-name" autocomplete="off" maxlength="16">
             </div>
             <div class="input-group">
-                <label>CLASSE:</label>
+                <label for="new-char-class">CLASSE:</label>
                 <select id="new-char-class">
-                    <option value="Cavaleiro">Cavaleiro</option>
-                    <option value="Arqueiro">Arqueiro</option>
+                    <option value="Monge">Monge</option>
                     <option value="Mago">Mago</option>
+                    <option value="Assassino">Assassino</option>
                 </select>
             </div>
             <button onclick="submitNewCharacter()" class="action-btn">SALVAR_CHARACTER()</button>
         </div>
     </div>
 
-    <!-- 3. CONSOLE PRINCIPAL DO JOGO -->
+   
+    <!-- 3. Interface do terminal do jogo -->
     <div id="main-game-layout" class="console-wrapper hidden">
         <main class="terminal-box">
             <div class="terminal-bar">
                 <span id="active-char-display">AVATAR: INDEFINIDO</span>
-                <a href="/logout" class="disconnect-link">[ TERMINATE_SESS ]</a>
+                <a href="/logout" class="disconnect-link" aria-label="Encerrar Sessão">[ TERMINATE_SESS ]</a>
             </div>
-
-            <div id="terminal-log" class="terminal-log">
+            <div id="terminal-log" class="terminal-log" aria-live="polite" aria-atomic="false">
                 <p class="sys-output">[SISTEMA] Console de controle operacional estabelecido.</p>
             </div>
-
             <div class="input-line">
                 <span class="user-prompt">cmd:~$</span>
-                <input type="text" id="terminal-input" autocomplete="off" placeholder="Insira dados...">
+                <input type="text" id="terminal-input" autocomplete="off" placeholder="Insira dados..." aria-label="Linha de comando do terminal">
             </div>
         </main>
 
-        <!-- SEÇÃO DE DIRETRIZES / SOCIAL -->
         <footer class="info-panel">
             <div id="guide">
                 <h2>>> PROTOCOLO DE COMANDO</h2>
                 <div class="grid-tips">
-                    <span><code>ir [direção]</code></span>
+                    <span><code>ir norte</code> / <code>ir leste</code></span>
                     <span><code>atacar</code> / <code>fugir</code></span>
                     <span><code>inventario</code></span>
                     <span><code>status</code></span>
+                    <span><code>usar pocao de vida</code></span>
                 </div>
             </div>
             <div id="redes_sociais">
-                <a href="#" target="_blank">[DISCORD]</a> | <a href="#" target="_blank">[GITHUB]</a>
+                 |<a href="#" target="_blank">[GITHUB]</a>|
             </div>
         </footer>
     </div>
 
     <script src="/static/js/game.js"></script>
 </body>
-
 </html>

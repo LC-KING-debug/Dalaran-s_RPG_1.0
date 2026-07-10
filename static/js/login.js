@@ -1,3 +1,22 @@
+
+
+const globalClickSound = document.getElementById('global-click-sound');
+
+function playLoginClick() {
+    if (globalClickSound) {
+        globalClickSound.currentTime = 0;
+        globalClickSound.volume = 0.4;
+        globalClickSound.play().catch(() => {});
+    }
+}
+
+// Vincula o som a interações na página
+document.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON' || e.target.classList.contains('tab-btn')) {
+        playLoginClick();
+    }
+});
+
 function switchTab(type) {
     const loginForm = document.getElementById('login-form');
     const regForm = document.getElementById('register-form');
@@ -38,50 +57,19 @@ async function handleAuth(event, type) {
         const data = await response.json();
 
         if (response.ok) {
-            msg.innerText = "SESSÃO VALIDADA.";
-            // Guarda temporariamente no localStorage para sabermos quem logou antes de ir pro index
-            localStorage.setItem('currentUser', username);
-            setTimeout(() => { window.location.href = '/game'; }, 800);
+            msg.innerText = type === 'login' ? "SESSÃO VALIDADA. REDIRECIONANDO..." : "CADASTRO REALIZADO! FAÇA LOGIN.";
+            if(type === 'login') {
+                localStorage.setItem('currentUser', username);
+                setTimeout(() => { window.location.href = '/game'; }, 800);
+            } else {
+                switchTab('login');
+            }
         } else {
             msg.style.color = '#ff0000';
-            msg.innerText = `ERR: ${data.message || 'Dados inválidos.'}`;
+            msg.innerText = `ERR: ${data.message || data.erro || 'Falha operacional.'}`;
         }
     } catch (e) {
         msg.style.color = '#ff0000';
         msg.innerText = "ERRO NA CENTRAL DO PROTOCOLO.";
-
-        
     }
 }
-
-// Gerenciador de som para elementos de fato clicáveis
-document.addEventListener('DOMContentLoaded', () => {
-    const audioClick = document.getElementById('global-click-sound');
-
-    const playClickSound = (event) => {
-        // Seleciona o elemento real que foi clicado
-        const target = event.target;
-
-        // Lista de tags e atributos que consideramos como "clicáveis" no sistema
-        const isClickable = 
-            target.tagName === 'BUTTON' || 
-            target.tagName === 'INPUT' || 
-            target.tagName === 'LABEL' || 
-            target.tagName === 'A' ||
-            target.hasAttribute('onclick') || 
-            target.classList.contains('tab-btn') ||
-            target.closest('button') || // Garante clique em ícones/textos dentro de botões
-            target.closest('.tab-btn');
-
-        // Só toca o áudio se passou no teste acima
-        if (isClickable && audioClick) {
-            audioClick.currentTime = 0; // Reseta para o início caso clique rápido
-            audioClick.volume = 0.5;
-            audioClick.play().catch(() => {});
-        }
-    };
-
-    // Escuta cliques do mouse e toques na tela nos elementos específicos
-    document.addEventListener('click', playClickSound);
-    document.addEventListener('touchstart', playClickSound, { passive: true });
-});
