@@ -1,6 +1,9 @@
 const clickSound = document.getElementById('click-sound');
 const deleteSound = document.getElementById('delete-sound');
 
+// Variável para armazenar o personagem selecionado
+let avatarSelecionadoNome = null;
+
 function playClick() {
     if (clickSound) {
         clickSound.currentTime = 0;
@@ -17,7 +20,7 @@ function playDeleteSound() {
     }
 }
 
-// Fade-Out controlável com delay estendido para 2.5 segundos (2500ms)
+// Fade-Out controlável com delay estendido
 function triggerPageFadeOut(url) {
     const overlay = document.getElementById('page-transition');
     if (overlay) {
@@ -25,7 +28,7 @@ function triggerPageFadeOut(url) {
         overlay.classList.add('fade-out');
         setTimeout(() => {
             window.location.href = url;
-        }, 2500); // Sincronizado com o CSS
+        }, 2500); 
     } else {
         window.location.href = url;
     }
@@ -79,6 +82,56 @@ function runWelcomeSequence() {
     }, 3000); 
 }
 
+// ================= FUNÇÕES DE ALERTAS =================
+
+function showSystemAlert(message) {
+    const alertOverlay = document.getElementById('system-alert');
+    const alertMessage = document.getElementById('system-alert-message');
+    
+    if (alertOverlay && alertMessage) {
+        alertMessage.textContent = message;
+        alertOverlay.classList.remove('hidden');
+        playClick(); 
+    }
+}
+
+function closeSystemAlert() {
+    const alertOverlay = document.getElementById('system-alert');
+    if (alertOverlay) {
+        alertOverlay.classList.add('hidden');
+        playClick();
+    }
+}
+
+// Funções para o Alerta de Confirmação
+function showSystemConfirm(message, onConfirmCallback) {
+    const confirmOverlay = document.getElementById('system-confirm');
+    const confirmMessage = document.getElementById('system-confirm-message');
+    const btnYes = document.getElementById('btn-confirm-yes');
+    
+    if (confirmOverlay && confirmMessage && btnYes) {
+        confirmMessage.textContent = message;
+        
+        btnYes.onclick = () => {
+            closeSystemConfirm();
+            onConfirmCallback();
+        };
+        
+        confirmOverlay.classList.remove('hidden');
+        playClick(); 
+    }
+}
+
+function closeSystemConfirm() {
+    const confirmOverlay = document.getElementById('system-confirm');
+    if (confirmOverlay) {
+        confirmOverlay.classList.add('hidden');
+        playClick();
+    }
+}
+
+// ======================================================
+
 async function loadCharacterPanel() {
     try {
         const response = await fetch('/listar_personagens');
@@ -86,7 +139,13 @@ async function loadCharacterPanel() {
         
         const listDiv = document.getElementById('character-list');
         const createBox = document.getElementById('create-char-box');
+        const btnIniciar = document.getElementById('btn-iniciar-mundo');
+        
         listDiv.innerHTML = '';
+        
+        // Esconde o botão e limpa a seleção ao recarregar a lista
+        if(btnIniciar) btnIniciar.classList.add('hidden');
+        avatarSelecionadoNome = null;
         
         if (data.status === 'sucesso') {
             const lista = data.personagens;
@@ -109,12 +168,15 @@ async function loadCharacterPanel() {
             lista.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'char-card';
+                card.id = `card-${p.nome}`;
                 
                 const cardClickable = document.createElement('div');
                 cardClickable.className = 'char-card-clickable';
                 cardClickable.style.flexGrow = '1';
                 cardClickable.style.cursor = 'pointer';
-                cardClickable.onclick = () => selecionarAvatar(p.nome);
+                
+                // O clique destaca o avatar
+                cardClickable.onclick = () => destacarAvatar(p.nome, card);
                 
                 cardClickable.innerHTML = `
                     <div>
@@ -145,26 +207,42 @@ async function loadCharacterPanel() {
     }
 }
 
-async function removerAvatarDoSistema(nome) {
-    if(!confirm(`Deseja deletar o avatar [ ${nome.toUpperCase()} ] permanentemente?`)) return;
+// Destaca o avatar selecionado e exibe o botão
+function destacarAvatar(nome, cardElement) {
+    document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
     
-    try {
-        const response = await fetch('/deletar_personagem', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ nome })
-        });
-        
-        if(response.ok) {
-            playDeleteSound();
-            loadCharacterPanel();
-        } else {
-            const data = await response.json();
-            alert(data.erro || "Falha ao excluir.");
-        }
-    } catch(e) {
-        alert("Erro de comunicação com o servidor.");
+    cardElement.classList.add('selected');
+    avatarSelecionadoNome = nome;
+    
+    const btnIniciar = document.getElementById('btn-iniciar-mundo');
+    if(btnIniciar) {
+        btnIniciar.classList.remove('hidden');
     }
+    
+    playClick(); 
+}
+
+// MUDANÇA: Substituição do confirm() nativo pelo modal customizado
+async function removerAvatarDoSistema(nome) {
+    showSystemConfirm(`Deseja deletar o avatar [ ${nome.toUpperCase()} ] permanentemente?`, async () => {
+        try {
+            const response = await fetch('/deletar_personagem', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ nome })
+            });
+            
+            if(response.ok) {
+                playDeleteSound();
+                loadCharacterPanel();
+            } else {
+                const data = await response.json();
+                showSystemAlert(data.erro || "Falha ao excluir.");
+            }
+        } catch(e) {
+            showSystemAlert("Erro de comunicação com o servidor.");
+        }
+    });
 }
 
 async function submitNewCharacter() {
@@ -172,7 +250,7 @@ async function submitNewCharacter() {
     const classe = document.getElementById('new-char-class').value;
     
     if(!nome) {
-        alert("Insira um nome operational válido.");
+        showSystemAlert("Insira um nome operacional válido.");
         return;
     }
     
@@ -184,33 +262,36 @@ async function submitNewCharacter() {
         });
         
         if(response.ok) {
-            localStorage.setItem('activeCharName', nome);
-            triggerPageFadeOut('/game');
+            document.getElementById('new-char-name').value = '';
+            showSystemAlert(`Sinalizador [ ${nome} ] registrado com sucesso. Selecione-o na lista para iniciar.`);
+            loadCharacterPanel();
         } else {
             const data = await response.json();
-            alert(data.erro || "Falha ao registrar.");
+            showSystemAlert(data.erro || "Falha ao registrar.");
         }
     } catch(e) {
-        alert("Erro de conexão com o núcleo.");
+        showSystemAlert("Erro de conexão com o núcleo.");
     }
 }
 
-async function selecionarAvatar(nome) {
+async function entrarNoMundo() {
+    if (!avatarSelecionadoNome) return;
+    
     try {
         const response = await fetch('/selecionar_personagem', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ nome })
+            body: JSON.stringify({ nome: avatarSelecionadoNome })
         });
         
         if (response.ok) {
-            localStorage.setItem('activeCharName', nome);
+            localStorage.setItem('activeCharName', avatarSelecionadoNome);
             triggerPageFadeOut('/game');
         } else {
             const data = await response.json();
-            alert(data.erro);
+            showSystemAlert(data.erro);
         }
     } catch(e) {
-        alert("Falha ao sincronizar avatar.");
+        showSystemAlert("Falha ao sincronizar avatar.");
     }
 }

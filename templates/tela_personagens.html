@@ -36,6 +36,9 @@
             <!-- Gerado via JS -->
         </div>
 
+        <!-- NOVO BOTÃO: Iniciar Mundo -->
+        <button id="btn-iniciar-mundo" class="action-btn hidden" onclick="entrarNoMundo()">> INICIAR_MUNDO()</button>
+
         <div id="create-char-box" class="create-box">
             <h3>[ REGISTRAR NOVO AVATAR ]</h3>
             <div class="input-group">
@@ -51,6 +54,27 @@
                 </select>
             </div>
             <button onclick="submitNewCharacter()" class="action-btn">SALVAR_CHARACTER()</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE ALERTA DO SISTEMA -->
+    <div id="system-alert" class="system-alert-overlay hidden">
+        <div class="system-alert-box">
+            <h3 class="alert-title">>_ MENSAGEM_DO_SISTEMA</h3>
+            <p id="system-alert-message" class="alert-message"></p>
+            <button class="action-btn" onclick="closeSystemAlert()">[ OK ]</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMAÇÃO (NOVO) -->
+    <div id="system-confirm" class="system-alert-overlay hidden">
+        <div class="system-alert-box">
+            <h3 class="alert-title" style="border-color: #ff0000; text-shadow: 0 0 8px #ff0000;">>_ ATENÇÃO:_EXCLUSÃO_CRÍTICA</h3>
+            <p id="system-confirm-message" class="alert-message" style="color: #ff0000;"></p>
+            <div class="confirm-actions">
+                <button id="btn-confirm-yes" class="action-btn btn-danger">[ SIM ]</button>
+                <button class="action-btn" onclick="closeSystemConfirm()">[ NÃO ]</button>
+            </div>
         </div>
     </div>
 
