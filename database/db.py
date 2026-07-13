@@ -18,7 +18,7 @@ def init_db():
         )
     ''')
     
-    # Tabela de Personagens (Persistência do RPG)
+    # Tabela de Personagens (Persistência do RPG via Serialização do Motor)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS personagens (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,9 +27,15 @@ def init_db():
             classe TEXT NOT NULL,
             nivel INTEGER DEFAULT 1,
             exp INTEGER DEFAULT 0,
+            exp_necessaria INTEGER DEFAULT 100,
             hp INTEGER NOT NULL,
             hp_max INTEGER NOT NULL,
-            inventario TEXT DEFAULT 'Pocao de Vida',
+            ataque INTEGER NOT NULL,
+            defesa INTEGER NOT NULL,
+            habilidade_especial TEXT NOT NULL,
+            inventario TEXT NOT NULL,
+            sala_atual TEXT NOT NULL,
+            inimigo_atual TEXT,
             FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
         )
     ''')

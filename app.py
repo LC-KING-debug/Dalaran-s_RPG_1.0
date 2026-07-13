@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-from routes.game import Game, Personagem
+import json
+from routes.game import Game, CLASSES_DISPONIVEIS
 from database.db import init_db, get_db_connection
 from routes.auth import auth_bp  
 import os
@@ -13,40 +14,50 @@ init_db()
 jogos_ativos = {}
 
 def carregar_jogo_para_memoria(user_id, personagem_row):
-    p = Personagem(personagem_row['nome'], personagem_row['classe'])
-    p.nivel = int(personagem_row['nivel'])
-    p.hp = int(personagem_row['hp'])
-    p.hp_max = int(personagem_row['hp_max'])
-    p.exp = int(personagem_row['exp'])
-    p.exp_necessaria = int(100 * (1.5 ** (p.nivel - 1)))
+    """Reconstrói a partida extraindo colunas do DB para o formato exigido por Game.from_dict"""
+    data = {
+        "player": {
+            "nome": personagem_row['nome'],
+            "classe": personagem_row['classe'],
+            "nivel": int(personagem_row['nivel']),
+            "exp": int(personagem_row['exp']),
+            "exp_necessaria": int(personagem_row['exp_necessaria']),
+            "hp": int(personagem_row['hp']),
+            "hp_max": int(personagem_row['hp_max']),
+            "ataque": int(personagem_row['ataque']),
+            "defesa": int(personagem_row['defesa']),
+            "habilidade_especial": personagem_row['habilidade_especial'],
+            "inventario": json.loads(personagem_row['inventario']) if personagem_row['inventario'] else {}
+        },
+        "sala_atual": personagem_row['sala_atual'],
+        "inimigo_atual": json.loads(personagem_row['inimigo_atual']) if personagem_row['inimigo_atual'] else None
+    }
     
-    for _ in range(1, p.nivel):
-        p.ataque = int(p.ataque * 1.15)
-        p.defesa = int(p.defesa * 1.15)
-    
-    inv_banco = personagem_row['inventario']
-    if inv_banco:
-        p.inventario = [item.strip() for item in inv_banco.split(',') if item.strip()]
-    else:
-        p.inventario = []
-    
-    game_instance = Game(p.nome, p.classe)
-    game_instance.player = p
+    game_instance = Game.from_dict(data)
     jogos_ativos[user_id] = game_instance
 
 def salvar_jogo_no_banco(user_id):
+    """Salva os atributos dinâmicos a partir do retorno to_dict()"""
     if user_id in jogos_ativos:
         game = jogos_ativos[user_id]
-        p = game.player
-        inventario_str = ",".join(p.inventario)
+        estado = game.to_dict()
+        p = estado["player"]
+        
+        inventario_json = json.dumps(p["inventario"])
+        inimigo_json = json.dumps(estado["inimigo_atual"]) if estado["inimigo_atual"] else None
         
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('''
             UPDATE personagens 
-            SET nivel = ?, exp = ?, hp = ?, hp_max = ?, inventario = ?
+            SET nivel = ?, exp = ?, exp_necessaria = ?, hp = ?, hp_max = ?,
+                ataque = ?, defesa = ?, inventario = ?, sala_atual = ?, inimigo_atual = ?
             WHERE usuario_id = ? AND nome = ?
-        ''', (p.nivel, p.exp, p.hp, p.hp_max, inventario_str, session.get('user_id'), p.nome))
+        ''', (
+            p["nivel"], p["exp"], p["exp_necessaria"], p["hp"], p["hp_max"],
+            p["ataque"], p["defesa"], inventario_json, estado["sala_atual"], inimigo_json,
+            session.get('user_id'), p["nome"]
+        ))
         conn.commit()
         conn.close()
 
@@ -130,7 +141,8 @@ def criar_personagem():
     if not nome or not classe:
         return jsonify({"erro": "Dados insuficientes para criação."}), 400
         
-    classes_validas = ["monge", "mago", "assassino"]
+    # Valida usando o próprio dicionário do game.py
+    classes_validas = list(CLASSES_DISPONIVEIS.keys())
     if classe.lower() not in classes_validas:
         return jsonify({"erro": "Classe operacional inválida."}), 400
         
@@ -147,17 +159,24 @@ def criar_personagem():
         conn.close()
         return jsonify({"erro": "Você já possui um avatar com este nome."}), 400
 
-    if classe.lower() == "monge":
-        hp_base = 120
-    elif classe.lower() == "mago":
-        hp_base = 80
-    else:
-        hp_base = 95
+    # Cria instanciando o motor para obter todos os status base exatos de forma automática
+    novo_jogo = Game(nome, classe)
+    estado = novo_jogo.to_dict()
+    p = estado["player"]
     
+    inventario_json = json.dumps(p["inventario"])
+    inimigo_json = json.dumps(estado["inimigo_atual"]) if estado["inimigo_atual"] else None
+
     cursor.execute('''
-        INSERT INTO personagens (usuario_id, nome, classe, hp, hp_max, inventario) 
-        VALUES (?, ?, ?, ?, ?, 'Pocao de Vida')
-    ''', (session['user_id'], nome, classe, hp_base, hp_base))
+        INSERT INTO personagens (
+            usuario_id, nome, classe, nivel, exp, exp_necessaria, hp, hp_max,
+            ataque, defesa, habilidade_especial, inventario, sala_atual, inimigo_atual
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (
+        session['user_id'], p["nome"], p["classe"], p["nivel"], p["exp"], p["exp_necessaria"],
+        p["hp"], p["hp_max"], p["ataque"], p["defesa"], p["habilidade_especial"],
+        inventario_json, estado["sala_atual"], inimigo_json
+    ))
     conn.commit()
     
     cursor.execute("SELECT * FROM personagens WHERE usuario_id = ? AND nome = ?", (session['user_id'], nome))
